@@ -61,7 +61,7 @@ const Header = () => {
         <a href="/Home"><FaInfoCircle /> About</a>
         <a href="/Products"><FaBoxOpen /> Products</a>
         <a href="/Orders"><FaClipboardList /> Orders</a>
-        <a href="/Cart"><FaShoppingCart /> Cart</a>
+        <a href="/CartCheckout"><FaShoppingCart /> Cart</a>
       </nav>
     </div>
   );

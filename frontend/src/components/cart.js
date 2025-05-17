@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./CSS/product.css";
 import "./CSS/checkout.css";
 import { Header, Footer } from "./header_footer";
@@ -36,7 +36,6 @@ const ProductCards = ({ cart, editable = false, onQuantityChange }) => {
 };
 
 const CartCheckout = () => {
-  const navigate = useNavigate();
   const [step, setStep] = useState("cart");
   const [cart, setCart] = useState(getSavedCart);
   const [searchInput, setSearchInput] = useState("");
@@ -48,8 +47,18 @@ const CartCheckout = () => {
 		special_instructions: "",
 		agent_notes: ""
 	});
-	
+	const location = useLocation();
+  const navigate = useNavigate();
+
   useEffect(() => saveCart(cart), [cart]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlStep = params.get("step");
+    if (urlStep === "checkout") {
+      setStep("checkout");
+    }
+  }, [location.search]);
 
   const filteredCart = cart.filter(({ product }) => product.name.toLowerCase().includes(searchInput.toLowerCase ()));
   const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity,0);
@@ -91,7 +100,8 @@ const CartCheckout = () => {
 			} else if (response.ok) {
 				alert('Order placed successfully!');
 				setCart([]);
-				navigate("/ThankYou");
+        console.log(data)
+        navigate("/thankyou", { state: data });
 			} else {
 				alert(`Order confirmation failed: ${data.error || 'Unknown error'}`);
 			}
@@ -108,7 +118,7 @@ const CartCheckout = () => {
           <h1>Your Cart</h1>
           <div className="search-bar">
             <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search products..."/>
-            <button className="anchor" disabled={cart.length === 0 && localStorage.getItem("userType") === "user"? true: false} onClick={() => setStep("checkout")}> Checkout</button>
+            <button className="anchor" disabled={cart.length === 0 || localStorage.getItem("userType") === "agent"? true: false} onClick={() => setStep("checkout")}> Checkout</button>
           </div>
           <div id="cart-list" className="product-container"><ProductCards cart={filteredCart} editable onQuantityChange={updateQuantity} /></div>
         </section>
@@ -122,10 +132,10 @@ const CartCheckout = () => {
 					{cart.length > 0 && (
 						<div className="cart-summary">
 							<div id="item-total" className="cart-total"><span className="tag">Total Items</span><span className="price">{cart.length}</span></div>
-							<div id="cart-totaler" className="cart-total"><span className="tag">Items</span><span className="price">₹ {total.toFixed(2)}</span></div>
-							<div id="delivery-total" className="cart-total"><span className="tag">Delivery</span><span className="price">₹ 40</span></div>
+							<div id="cart-totaler" className="cart-total"><span className="tag">Cart Total</span><span className="price">₹ {total.toFixed(2)}</span></div>
+							<div id="delivery-total" className="cart-total"><span className="tag">Delivery Charges</span><span className="price">₹ 40</span></div>
 							<br></br><hr></hr>
-							<div id="order-total" className="cart-total"><span className="tag">Total</span><span className="price">₹ {(total + 40).toFixed(2)}</span></div>
+							<div id="order-total" className="cart-total"><span className="tag">Order Total</span><span className="price">₹ {(total + 40).toFixed(2)}</span></div>
 						</div>
 					)}
 
@@ -142,7 +152,7 @@ const CartCheckout = () => {
               </div>
               <div className="checkout-buttons">
                 <button type="button" onClick={() => setStep("cart")}> Back to Cart</button>
-                <button id="confirm-order" type="submit">Place Order</button>
+                <button id="confirm-order" type="submit" disabled={cart.length === 0}>Place Order</button>
               </div>
             </form>
           </div>

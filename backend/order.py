@@ -39,6 +39,7 @@ def order():
         result["order_date"] = datetime.combine(result["order_date"], datetime.min.time())
         result["delivery_date"] = datetime.combine(result["delivery_date"], datetime.min.time())
         result["order_id"] = str(uuid4())
+        order_id = result["order_id"]
         result["user_id"] = load_user_context()["user_id"]
         agent_ids = populateAgents()
         if not agent_ids:
@@ -46,7 +47,7 @@ def order():
         result["agent_id"] = agent_ids[randint(0, len(agent_ids) - 1)]
         result["status"] = choice(["Shipped", "Processing", "Out for Delivery"])
         result["payment_status"] = choice(["Paid", "Cash On Delivery"])
-        encrypted_data = {"cart": data["cart"], "special_instructions": data["special_instructions"], "agent_notes": data["agent_notes"]}
+        encrypted_data = {"cart": data["cart"], "special_instructions": data["special_instructions"], "agent_notes": data["agent_notes"], "username": data["name"], "user_email": data["email"], "phone": data["phone"]}
         encrypted_data["OTP"] = generate_numeric_otp()
         encrypted_data["return_policy"] = str(randint(3, 30)) + " days return policy"
         encrypted_data["transaction_id"] = str(uuid4()) if result["payment_status"] == "Paid" else ""
@@ -57,10 +58,7 @@ def order():
         cipher_payload = encrypt_dict(encrypted_data)
         result["qr-sensitive-data"] = cipher_payload
         collection.insert_one(result)
-        original_dict = decrypt_dict(cipher_payload)
         print("Pushed data to the MongoDB Database...")
-        print(original_dict)
     except Exception as e:
-        print(e)
         return jsonify({"message": "AES Implementation Failed", "error": str(e)}), 500
-    return jsonify({"message": "Order Placed Successfully"}), 200
+    return jsonify({"total_amount": result["total_amount"], "delivery_date": result["delivery_date"], "items": len(data["cart"]), "order_id": order_id}), 200

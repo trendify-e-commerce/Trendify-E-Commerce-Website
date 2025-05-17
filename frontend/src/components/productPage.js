@@ -79,8 +79,8 @@ const ProductsPage = () => {
         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
           {categories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
         </select>
-        <a className="anchor" href="/Cart">View Cart</a>
-        <a className="anchor" href="/Checkout">Checkout</a>
+        <a className="anchor" href="/CartCheckout">View Cart</a>
+        <a className={`anchor ${cart.length === 0 ? "disabled" : ""}`} href={cart.length === 0 ? "#" : `/CartCheckout?step=${encodeURIComponent("checkout")}`} onClick={(e) => { if (cart.length === 0) e.preventDefault();}}> Checkout </a>
      </div>
 
      <div id="products" className="section">
