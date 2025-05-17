@@ -25,3 +25,6 @@ ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
 CMD ["python", "app.py"]
+
+RUN ls -lh dependencies/AES_Implementation/build/encrypt \
+         dependencies/AES_Implementation/build/decrypt
