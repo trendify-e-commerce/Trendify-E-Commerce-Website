@@ -15,6 +15,7 @@ mongo_client = pymongo.MongoClient(mongo_uri)
 db = mongo_client["Secure-Delivery-Data"]
 
 def initializeAPI(username=None, user_id = None, email=None, userType=None):
+    print("Set User State")
     from backend.user_context_manager import update_user_context
     update_user_context(
         username=username,

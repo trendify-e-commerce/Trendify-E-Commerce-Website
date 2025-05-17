@@ -108,7 +108,7 @@ const CartCheckout = () => {
           <h1>Your Cart</h1>
           <div className="search-bar">
             <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search products..."/>
-            <button className="anchor" onClick={() => setStep("checkout")}> Checkout</button>
+            <button className="anchor" disabled={cart.length === 0 && localStorage.getItem("userType") === "user"? true: false} onClick={() => setStep("checkout")}> Checkout</button>
           </div>
           <div id="cart-list" className="product-container"><ProductCards cart={filteredCart} editable onQuantityChange={updateQuantity} /></div>
         </section>
@@ -121,11 +121,11 @@ const CartCheckout = () => {
 
 					{cart.length > 0 && (
 						<div className="cart-summary">
-							<div id="item-total" className="cart-total"><span>Total Items</span><span className="price">{cart.length}</span></div>
-							<div id="cart-totaler" className="cart-total"><span>Items</span><span className="price">₹ {total.toFixed(2)}</span></div>
-							<div id="delivery-total" className="cart-total"><span>Delivery</span><span className="price">₹ 40</span></div>
+							<div id="item-total" className="cart-total"><span className="tag">Total Items</span><span className="price">{cart.length}</span></div>
+							<div id="cart-totaler" className="cart-total"><span className="tag">Items</span><span className="price">₹ {total.toFixed(2)}</span></div>
+							<div id="delivery-total" className="cart-total"><span className="tag">Delivery</span><span className="price">₹ 40</span></div>
 							<br></br><hr></hr>
-							<div id="order-total" className="cart-total"><span>Total</span><span className="price">₹ {(total + 40).toFixed(2)}</span></div>
+							<div id="order-total" className="cart-total"><span className="tag">Total</span><span className="price">₹ {(total + 40).toFixed(2)}</span></div>
 						</div>
 					)}
 
@@ -137,8 +137,8 @@ const CartCheckout = () => {
                 <input type="email" value={billing.email} onChange={handleField("email")} required />
                 <input type="tel" value={billing.phone} onChange={handleField("phone")} required />
                 <textarea placeholder="Shipping Address" value={billing.address} onChange={handleField("address")} required/>
-								<textarea placeholder="Special Instructions" value={billing.special_instructions} onChange={handleField("special_instructions")} required/>
-								<textarea placeholder="Agent Notes" value={billing.agent_notes} onChange={handleField("agent_notes")} required/>
+								<textarea placeholder="Special Instructions" value={billing.special_instructions} onChange={handleField("special_instructions")} />
+								<textarea placeholder="Agent Notes" value={billing.agent_notes} onChange={handleField("agent_notes")} />
               </div>
               <div className="checkout-buttons">
                 <button type="button" onClick={() => setStep("cart")}> Back to Cart</button>

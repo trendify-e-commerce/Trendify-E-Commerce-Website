@@ -11,7 +11,7 @@ array<array<uint8_t, 4>, 4> KeyScheduler::keyCalling(const string& key){
      array<array<uint8_t, 4>, 4> w;
      int size = key.size();
      if (size < 16) throw string("AES-128 requires 16-byte key...");
-     for (int i = 0; i < 16; ++i) w[i%4][i/4] = static_cast<uint8_t>(key[i]);
+     for (int i = 0; i < 16; ++i) w[i%4][i/4] = static_cast<uint8_t>(key[i]); //Column Major
      return w;
 }
 
@@ -37,13 +37,11 @@ array<array<uint8_t, 4>, 4> KeyScheduler::roundKeysGeneration (array<array<uint8
 KeyScheduler::KeyScheduler(const string& key){
      noOfRounds = 10;
      roundConstants = std::array<uint8_t, 10>{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36};
-     cout<<"\nStarting AES Key Generation... "<<endl;
      try{roundKeys[0] = keyCalling(key);}
      catch (string &e){throw e;}
      initialize_aes_sbox(sBox);
      while (noOfRounds--)
           roundKeys[11 - noOfRounds - 1] = roundKeysGeneration(roundKeys[11 - noOfRounds - 2]);
-     cout<<"Key Generation Completed Successfully! "<<endl<<endl;
 }
 
 array<array<array<uint8_t, 4>, 4>, 11> KeyScheduler::getRoundKey(void){return roundKeys;}

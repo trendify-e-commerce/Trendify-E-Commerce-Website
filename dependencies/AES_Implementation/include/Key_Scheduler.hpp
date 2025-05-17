@@ -15,7 +15,6 @@ class KeyScheduler{
      array<uint8_t, 4> g_function (array<uint8_t, 4> word);
      array<array<uint8_t, 4>, 4> roundKeysGeneration (array<array<uint8_t, 4>, 4> w);
      friend array<uint8_t, 4>operator ^ (array<uint8_t, 4>w, array<uint8_t, 4> g);
-     friend array<uint8_t, 4> operator ^ (array<uint8_t, 4> w, unsigned int roundArray[4]);
      public:
           KeyScheduler(const string& key);
           array<array<array<uint8_t, 4>, 4>, 11> getRoundKey(void);

@@ -70,6 +70,14 @@
   background-color: #45a049;
 }
 
+.anchor:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .current-page {
   margin: 5px;
   padding: 8px 12px;

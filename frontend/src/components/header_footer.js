@@ -18,6 +18,9 @@ const Header = () => {
       const result = await response.json();
       if (result.email) {
         localStorage.removeItem("user_email");
+        localStorage.removeItem("username");
+        localStorage.removeItem("phone");
+        localStorage.removeItem("userType");
         setDropdownVisible(false);
       } else {
         console.error('Logout failed');

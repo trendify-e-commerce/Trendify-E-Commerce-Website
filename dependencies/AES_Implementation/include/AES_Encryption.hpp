@@ -3,7 +3,9 @@
 #include <iostream>
 #include <cstdint>
 #include <array>
+#include <vector>
 #include "Key_Scheduler.hpp"
+#include "Helper.hpp"
 using namespace std;
 
 class AES_Encrypt{
@@ -17,10 +19,5 @@ class AES_Encrypt{
      void singleRound(int& round);
      public:
           AES_Encrypt (const array<array<array<uint8_t, 4>, 4>, 11>& roundKeys, const string& plainText, const string& prevRoundCipherText = "");
-          string encrypt (void);
+          vector<uint8_t> encrypt();
 };
-
-void swap (uint8_t &a, uint8_t &b);
-void reverse (array<uint8_t, 4>& arr, int i, int j);
-uint8_t gMultiply(uint8_t a, uint8_t b);
-inline uint8_t gMul(array <uint8_t, 4>& first, array <uint8_t, 4>& second);

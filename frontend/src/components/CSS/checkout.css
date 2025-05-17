@@ -9,6 +9,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f9;
+}.cart-summary:hover {
+  cursor: not-allowed;
 }
 
 .cart-total {
@@ -18,18 +20,12 @@
   font-size: larger;
 }
 
-#item-total {
-  color: #007bff;
-}#delivery-total {
-  color: #28a745;
-}#order-total {
+#order-total {
   margin-top: 15px;
-  color: #dc3545;
-}#cart-totaler {
-  color: #eb0efb;
-}
-
-.price {
+  margin-bottom: 0px;
+}.tag{
+  font-weight: bold;
+}.price {
   margin-left: auto;
 }
 

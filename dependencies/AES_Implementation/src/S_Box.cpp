@@ -13,3 +13,8 @@ void initialize_aes_sbox(uint8_t sbox[256]) {
 	} while (p != 1);
 	sbox[0] = 0x63;
 }
+
+void initialize_aes_inv_sbox(const uint8_t sbox[256], uint8_t inv_sbox[256]){
+    for (int i = 0; i < 256; ++i)
+        inv_sbox[sbox[i]] = static_cast<uint8_t>(i);
+}

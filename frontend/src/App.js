@@ -10,9 +10,7 @@ function App() {
   useEffect(() => {
     fetch(`${BASE_URL}/api/initial`, { method: 'POST' })
       .then(res => res.json())
-      .then(data => {
-        console.log('Login auto-triggered:', data);
-      })
+      .then(data => { console.log('Login auto-triggered:', data); })
       .catch(err => console.error(err));
   }, []);
   
