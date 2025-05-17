@@ -1,5 +1,5 @@
 /*------------------------------------ THANK YOU SECTION -----------------------------------*/
-#thankyou h1, h2, h3 {
+#thankyou h1, #thankyou h2, #thankyou h3 {
   font-family: "Merriweather", Cambria, serif;
   font-weight: bold;
   color: #3cbf4e;
