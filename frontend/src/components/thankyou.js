@@ -11,7 +11,7 @@ export default function ThankYou () {
 
   return (
     <><Header />
-      <div id="thankyou" className="section">
+      <div id="thankyou" className="section thankyou">
         <h1>Thank You for Your Order!</h1>
         <p>We appreciate your purchase and look forward to serving you again.</p>
         <div className="cart-summary-tot">

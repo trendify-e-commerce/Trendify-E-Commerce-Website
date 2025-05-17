@@ -1,4 +1,11 @@
 /*------------------------------------ THANK YOU SECTION -----------------------------------*/
+.thankyou h1, .thankyou h2, .thankyou h3 {
+  font-family: "Merriweather", Cambria, serif;
+  font-weight: bold;
+  color: #3cbf4e;
+  margin-bottom: 30px;
+}
+
 .cart-summary-tot {
   min-width: none;
   margin: 0 auto;
