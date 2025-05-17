@@ -8,7 +8,7 @@ import subprocess
 import json, base64
 
 def encrypt_text(plaintext):
-    exe_path = os.path.join(root_path, "dependencies", "AES_Implementation", "build", "encrypt.exe")
+    exe_path = os.path.join(root_path, "dependencies", "AES_Implementation", "build", "encrypt")
     try:
         proc = subprocess.Popen(
             [exe_path],
@@ -27,10 +27,7 @@ def encrypt_text(plaintext):
 
 def decrypt_bytes(byte_values):
     hex_str = ''.join(f'{b:02X}' for b in byte_values)
-    dec_path = os.path.join(
-        root_path, "dependencies", "AES_Implementation",
-        "build", "decrypt.exe"
-    )
+    dec_path = os.path.join(root_path, "dependencies", "AES_Implementation", "build", "decrypt")
     try:
         proc = subprocess.Popen(
             [dec_path],
