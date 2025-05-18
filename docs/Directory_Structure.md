@@ -1,4 +1,4 @@
-Trendify-E-Commerce-Website/
+```Trendify-E-Commerce-Website/
 ├── dependencies/                         # Stores the project dependencies
 │   ├── AES_Implementation/               # AES module implementation
 │   │   ├── include/                      # AES C++ header files
@@ -65,4 +65,4 @@ Trendify-E-Commerce-Website/
 ├── Dockerfile                            # Container setup instructions
 ├── LICENSE                               # License for using and modifying the project
 ├── README.md                             # Project overview and setup instructions
-└── requirements.txt                      # Python package requirements for Flask backend
+└── requirements.txt                      # Python package requirements for Flask backend```
