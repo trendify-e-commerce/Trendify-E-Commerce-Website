@@ -16,7 +16,6 @@
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
-  min-height: 188px;
 }
 
 .orderItem {
@@ -185,4 +184,71 @@ hr {
   width: 100%;
   margin: 6px 0;
   font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .order-section {
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .orderSection {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .orderSection, .userSection {
+    flex: unset;
+    width: 100%;
+  }
+
+  .sensitive-details {
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .qr-img {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 600px) {
+  .order-section {
+    padding: 12px;
+  }
+
+  .product-card {
+    width: 100%;
+  }
+
+  .quantity-container {
+    justify-content: center;
+  }
+
+  .timeline-content {
+    font-size: 14px;
+    margin-left: 24px;
+  }
+
+  .timeline-icon {
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+  }
+
+  .timeline-line {
+    height: 18px;
+    top: 20px;
+  }
+
+  .qr-img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cart-total span {
+    font-size: 14px;
+  }
 }
