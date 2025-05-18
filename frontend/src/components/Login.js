@@ -87,19 +87,10 @@ const LoginRegister = () => {
   };  
 
   useEffect(() => {
-    document.body.style.backgroundImage = "url('/assets/background.jpeg')";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.backgroundPosition = "center";
-  
-    return () => {
-      document.body.style.backgroundImage = "";
-      document.body.style.backgroundSize = "";
-      document.body.style.backgroundRepeat = "";
-      document.body.style.backgroundPosition = "";
-    };
+    document.body.style.backgroundColor = "#D1F1CE";
+    return () => {document.body.style.backgroundColor = "";};
   }, []);
-
+  
   return (
     <div className={`container ${isActive ? 'active' : ''}`}>
       <div className="form-box login">

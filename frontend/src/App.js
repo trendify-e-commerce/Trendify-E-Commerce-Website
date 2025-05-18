@@ -4,6 +4,8 @@ import Home from './components/Home';
 import ProductsPage from './components/productPage';
 import CartCheckout from './components/cart'
 import ThankYou from './components/thankyou';
+import CusAgentOrder from './components/cus_agent_order';
+import Orders from './components/orders';
 
 function App() {  
   return (
@@ -13,6 +15,8 @@ function App() {
       <Route path="/Products" element={<ProductsPage />} />
       <Route path="/CartCheckout" element={<CartCheckout />} />
       <Route path="/thankyou" element={<ThankYou />} />
+      <Route path="/Orders" element={<Orders />} />
+      <Route path="/OrderData" element={<CusAgentOrder />} />
     </Routes>
   );
 }

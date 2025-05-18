@@ -5,7 +5,9 @@ if root_path not in sys.path:
     sys.path.append(root_path)
 
 import subprocess
-import json, base64
+import json, base64, qrcode
+from io import BytesIO
+from PIL import Image
 
 def encrypt_text(plaintext):
     exe_path = os.path.join(root_path, "dependencies", "AES_Implementation", "build", "encrypt")
@@ -53,3 +55,10 @@ def decrypt_dict(payload: dict) -> dict:
     cipher_bytes = list(base64.b64decode(payload["ciphertext"]))
     json_str     = decrypt_bytes(cipher_bytes)
     return json.loads(json_str)
+
+def generate_qr(data):
+    qr = qrcode.make(data)
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+    buffer.seek(0)
+    return base64.b64encode(buffer.read()).decode()
