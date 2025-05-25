@@ -1,10 +1,12 @@
-# MerkelRex Application
+# TRENDIFY : E-CLOTHING STORE
 
-[![Build Status](https://github.com/Khajan38/MerkelRex-Application/actions/workflows/build.yml/badge.svg)](https://github.com/Khajan38/MerkelRex-Application/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Store Link](https://img.shields.io/badge/Visit%20Store-TRENDIFY-28a745?style=for-the-badge&logo=shopping-cart&logoColor=white)](https://trendify-e-commerce-store-blush.vercel.app/)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?&logo=open-source-initiative&logoColor=white)](LICENSE)
 [![LinkedIn Follow](https://img.shields.io/badge/Follow%20on-LinkedIn-blue?style=social&logo=linkedin)](https://www.linkedin.com/in/khajanbhatt/)
+[![LinkedIn Follow](https://img.shields.io/badge/Follow%20on-Github-blue?style=social&logo=github)](https://github.com/Khajan38/)
 
-<img src="docs/Trading.jpeg" alt="MerkelRex Application" style="width:100%;"/> <br>
+<img src="docs/Trendify.avif" alt="MerkelRex Application" style="width:100%;"/> <br>
 
 <p style="font-size:16px;"> Hi, I am <B>Khajan Bhatt</B>. Welcome to the <B>MerkelRex Application</B> - a project developed as part of the <B>"Object-Oriented Programming"</B> specialization from <B>Coursera</B>, created during my 2nd Year of B.Tech. C.S.E. </p>
 
@@ -22,7 +24,7 @@
               Lecturer in Computing at Goldsmiths, 
               University of London 
 
-__Find the Certification at :__ [Link to Specialization](https://coursera.org/verify/specialization/2TGELYY15390)
+__Check More Projects :__ [Link to my GitHub ID](https://github.com/Khajan38)
 
 __See me on LinkedIn :__ [Link to my LinkedIn ID](https://www.linkedin.com/in/khajanbhatt/)
     
@@ -50,26 +52,45 @@ The MerkelRex Application is a C++-based order book management system designed t
 - **Help System**: Access helpful information and instructions directly within the application.
 
 ## Directory Structure
-For detailed information about the project's structure, please refer to the [Directory Structure](docs/Directory%20Structure.md) document.
+For detailed information about the project's structure, please refer to the [Directory Structure](docs/Directory_Structure.md) document.
 
 ## Installation
 To build and run the MerkelRex application, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Khajan38/MerkelRex-Application.git
-   cd MerkelRex 
+   git https://github.com/Khajan38/Trendify-E-Commerce-Store.git
+   cd Trendify-E-Commerce-Store
    ```
-2. Build the application using CMake:
+2. Add .env files:
    ```bash
-   mkdir build
-   cd build
-   cmake -G "MinGW Makefiles" ..
-   cmake --build .
+   Trendify-E-Commerce-Store/.env: 
+      MONGO_URI=<Your MongoDB Connection Link>
+      BASE_URI=<Your frontend base URL like http://localhost:3000>
+   
+   Trendify-E-Commerce-Store/frontend/.env:
+      REACT_APP_API_BASE_URL=<Your Backend Flask API Link, e.g. http://localhost:5000>
    ```
-3. Run the application:
+3. Build the application:
    ```bash
-   ./"bin/MerkelRex.exe"
+   docker build -t secure-delivery-backend .
+   
+   cd frontend
+   npm install
+   npm install -g serve
+   ```
+4. Run the application:
+   ```bash
+   docker run -p 5000:5000 secure-delivery-backend
+   
+   //Either run this for Development purposes
+   cd frontend
+   npm start 
+   
+   //Or this for Production purposes
+   cd backend
+   npm run build
+   serve -s build 
    ```
 
 ## Usage

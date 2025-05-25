@@ -9,9 +9,10 @@ from uuid import uuid4
 from dotenv import load_dotenv
 from urllib.parse import unquote
 from random import randint, choice
-from datetime import date, timedelta, datetime
 from flask import Blueprint, jsonify, request
-from backend.Encryption import encrypt_dict, decrypt_dict, generate_qr, encrypt_text
+from datetime import date, timedelta, datetime
+from werkzeug.security import check_password_hash
+from backend.Encryption import encrypt_dict, decrypt_dict, generate_qr
 from backend.user_context_manager import load_user_context
 
 load_dotenv()
@@ -91,26 +92,31 @@ def getOrderQR():
         print("❌ Error while processing order:", str(e))
         return jsonify({"error": "Server error occurred"}), 500
 
-@order_bp.route('/getOrderData', methods=['GET'])
-def getOrderData():
-    print(f"\n🟢 User initiated get order request...")
-    encoded_content = request.args.get('encodedContent')
-    if not encoded_content: return jsonify({"error": "Missing encodedContent parameter"}), 400
-    try:
-        decoded_content = unquote(encoded_content)
-        print(f"🔓 Decoded content: {decoded_content}")
-        data = collection.find_one({"order_id": decoded_content}, {"_id": 0})
-        userType = load_user_context()["userType"]
-        if userType == "users": userDetails = collectionU.find_one({"user_id": data["user_id"]}, {"password": 0, "_id": 0, "orders": 0})
-        else: userDetails = collectionA.find_one({"agent_id": data["agent_id"]},{"password": 0, "_id": 0, "vehicle_number": 0, "orders": 0})
-        encryptedData = data["qr-sensitive-data"]
-        decryptedData = decrypt_dict(encryptedData)
-        del data["qr-sensitive-data"]
-        decryptedData["userType"] = userType
-        return jsonify({"data": data, "sensitive_data": decryptedData, "userDetails": userDetails}), 200
-    except Exception as e:
-        print("❌ Error while processing order:", str(e))
-        return jsonify({"error": "Server error occurred"}), 500
+@order_bp.route('/getOrderData', methods=['POST'])
+@order_bp.route('/getOrderData', methods=['POST'])
+def get_order_data():
+    req_json = request.get_json(silent=True) or {}
+    order_id = req_json.get("order_id")
+    password = req_json.get("password")
+    if not order_id or not password: return jsonify({"error": "order_id and password required"}), 400
+    data = collection.find_one({"order_id": order_id},{"_id": 0})
+    if not data: return jsonify({"error": "Order not found"}), 404
+
+    user_entry = collectionU.find_one({"user_id": data["user_id"]}, {"password": 1})
+    agent_entry = collectionA.find_one({"agent_id": data["agent_id"]}, {"password": 1})
+
+    if user_entry and check_password_hash(user_entry["password"] , password):
+        userType = "users"
+        userDetails = collectionU.find_one({"user_id": data["user_id"]}, {"password": 0, "_id": 0, "orders": 0})
+    elif agent_entry and check_password_hash(agent_entry["password"] , password):
+        userType = "agents"
+        userDetails = collectionA.find_one({"agent_id": data["agent_id"]},{"password": 0, "_id": 0, "vehicle_number": 0, "orders": 0})
+    else: return jsonify({"error": "Invalid password"}), 401
+    encryptedData = data["qr-sensitive-data"]
+    decryptedData = decrypt_dict(encryptedData)
+    del data["qr-sensitive-data"]
+    decryptedData["userType"] = userType
+    return jsonify({"data": data, "sensitive_data": decryptedData, "userDetails": userDetails}), 200
 
 @order_bp.route('/getOrder', methods=['GET'])
 def getOrder():

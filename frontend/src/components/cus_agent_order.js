@@ -30,6 +30,7 @@ const CusAgentOrder = () => {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
   const [accessLevel, setAccessLevel] = useState("public");
+  const [password, setPassword] = useState(null);
   const [order_id, setOrder_ID] = useState(null);
   const location = useLocation();
 
@@ -39,31 +40,45 @@ const CusAgentOrder = () => {
     const pass = params.get("password");
     setAccessLevel(pass ? "protected" : "public");
     setOrder_ID(id);
+    if (pass) {
+      const enteredPass = prompt("Enter the Password:");
+      if (enteredPass) {setPassword(enteredPass);} 
+      else {window.location.href = "/";}
+    }
   }, [location.search]);
   
   useEffect(() => {
-    if (!order_id) return;
+    if (!order_id || (accessLevel === "protected" && !password)) return;
     const abort = new AbortController();
-    const fetchData = async () => {     
-      setLoading(true); setError(null);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const path = accessLevel === "protected"? "/api/getOrderData": "/api/getOrderQR";
+        const path = accessLevel === "protected" ? "/api/getOrderData" : "/api/getOrderQR";
         const url = `${BASE_URL}${path}?encodedContent=${encodeURIComponent(order_id)}`;
-        const res = await fetch(url, { signal: abort.signal });
+        const res = await fetch(url, {
+          method: accessLevel === "protected" ? "POST" : "GET",
+          headers: { "Content-Type": "application/json" },
+          body: accessLevel === "protected" ? JSON.stringify({ password, order_id }) : null,
+          signal: abort.signal
+        });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Unknown error");
         setResult(json);
-      } catch (err) {if (err.name !== "AbortError") setError(err.message);}
-      finally {setLoading(false);}
-   };
-   fetchData(); return () => abort.abort();
-  }, [accessLevel, order_id]);  
+      } catch (err) {
+        if (err.name !== "AbortError") setError(err.message);
+      } finally {setLoading(false);}
+    }; fetchData(); return () => abort.abort();
+  }, [accessLevel, order_id, password]);      
 
-  if (loading) return <p>Loading…</p>;
-  if (error)   return <p style={{color:"red"}}>{error}</p>;
-  if (!result) return null;
-  return (
-    <><Header />
+  if (loading) return (<>
+    <div className="toast-overlay" />
+    <div className="toast-message processing">Loading the Data...</div>
+  </>); if (error)   return (<>
+    <div className="toast-overlay" onClick={() => { setError(null); }} />
+    <div className="toast-message error" onClick={() => { setError(null); }}>{error}</div>
+  </>); if (!result) return null;
+  return (<> <Header />
     <div className="section order-section">
       <div className="orderSection">
         <div className="user-details">
