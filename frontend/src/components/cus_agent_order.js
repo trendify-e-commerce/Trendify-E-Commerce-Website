@@ -35,41 +35,44 @@ const CusAgentOrder = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const id = params.get("order_id");
-    const pass = params.get("password");
-    setAccessLevel(pass ? "protected" : "public");
-    setOrder_ID(id);
-    if (pass) {
-      const enteredPass = prompt("Enter the Password:");
-      if (enteredPass) {setPassword(enteredPass);} 
-      else {window.location.href = "/";}
-    }
+    const qs = new URLSearchParams(location.search);
+    setOrder_ID(qs.get("order_id") ?? null);
+    setAccessLevel(qs.get("password") ? "protected" : "public");
   }, [location.search]);
   
   useEffect(() => {
-    if (!order_id || (accessLevel === "protected" && !password)) return;
+    if (accessLevel !== "protected") return;
+    const entered = prompt("Enter the Password:");
+    if (entered) setPassword(entered);
+    else window.location.href = "/";
+  }, [accessLevel]);
+  
+  useEffect(() => {
+    if (!order_id) return;
+    if (accessLevel === "protected" && !password) return;
     const abort = new AbortController();
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
+    (async () => {
       try {
-        const path = accessLevel === "protected" ? "/api/getOrderData" : "/api/getOrderQR";
-        const url = `${BASE_URL}${path}?encodedContent=${encodeURIComponent(order_id)}`;
-        const res = await fetch(url, {
-          method: accessLevel === "protected" ? "POST" : "GET",
+        setLoading(true); setError(null);
+        const isProtected = accessLevel === "protected";
+        const url  = `${BASE_URL}${isProtected ? "/api/getOrderData": `/api/getOrderQR?encodedContent=${encodeURIComponent(order_id)}`}`;
+        const res  = await fetch(url, {
+          method : isProtected ? "POST" : "GET",
           headers: { "Content-Type": "application/json" },
-          body: accessLevel === "protected" ? JSON.stringify({ password, order_id }) : null,
-          signal: abort.signal
+          body   : isProtected ? JSON.stringify({ order_id, password }) : null,
+          signal : abort.signal
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Unknown error");
         setResult(json);
       } catch (err) {
         if (err.name !== "AbortError") setError(err.message);
-      } finally {setLoading(false);}
-    }; fetchData(); return () => abort.abort();
-  }, [accessLevel, order_id, password]);      
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => abort.abort();
+  }, [order_id, accessLevel, password]);      
 
   if (loading) return (<>
     <div className="toast-overlay" />

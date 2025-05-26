@@ -93,7 +93,6 @@ def getOrderQR():
         return jsonify({"error": "Server error occurred"}), 500
 
 @order_bp.route('/getOrderData', methods=['POST'])
-@order_bp.route('/getOrderData', methods=['POST'])
 def get_order_data():
     req_json = request.get_json(silent=True) or {}
     order_id = req_json.get("order_id")
