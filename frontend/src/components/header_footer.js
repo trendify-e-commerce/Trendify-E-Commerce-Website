@@ -42,9 +42,10 @@ const Header = () => {
       )}
       <div className="header">
         <div className="left-section">
-          <img className="logo" src={'assets/Trendify.jpeg'} alt="App Logo"/>
-          <h1>TRENDIFY</h1>
+          <img className="logo" src={'assets/Hunar_Bazaar.jpeg'} alt="App Logo"/>
+          <h1 style={{ fontFamily: "'Eagle Lake', cursive" }}>हुनरBazaar</h1>
         </div>
+        <small className="slogan">"Skill in every hand, Market at every doorstep"</small>
         <div className="user-info" onClick={() => setDropdownVisible(!dropdownVisible)}>
           <span>{localStorage.getItem("user_email")}</span>
           <img src={'assets/User.jpg'} alt="User" className="user-avatar" />

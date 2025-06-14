@@ -77,23 +77,39 @@ form {
   font-size: 26px;
   margin: 10px 0;
 }
-.logoInLogin {
-  font-size: 40px;
-  margin: 20px 0;
-  font-family: 'Montserrat', sans-serif;
-  color: #FFFFE0;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
 
 .input-box {
   position: relative;
   margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.input-box button{
+  flex-shrink: 0;
+  height: 45px;
+  width: 95px;
+}
+
+.input-box span {
+  flex-shrink: 0;
+  font-family: 'Montserrat', 'Poppins', sans-serif;
+  color: #1d1d1d;
+  font-weight: 400;
+  padding: 8px 10px;
+  font-size: 20px;
+  min-width: 45px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .input-box input {
-  width: 100%;
-  padding: 13px 50px 13px 20px;
+  flex: 1;
+  min-width: 0;
+  padding: 13px 13px 13px 20px;
   background: #eee;
   border-radius: 8px;
   border: none;

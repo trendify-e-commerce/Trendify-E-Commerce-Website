@@ -1,13 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import './CSS/login.css';
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const LoginRegister = () => {
-  const [isActive, setIsActive] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [formData, setFormData] = useState({userType: 'users', username: '', email: '', password: '', phone: ''});
-  const navigate = useNavigate();
+     const [isActive, setIsActive] = useState('login');
+     const [isLoggingIn, setIsLoggingIn] = useState(false);
+     const [OTP, setOTP] = useState("");
+     const [timer, setTimer] = useState(59);
+     const [isEmailVerified, setIsEmailVerified] = useState('No');
+     const [isPhoneVerified, setIsPhoneVerified] = useState('No');
+     const [confirmPassword, setConfirmPassword] = useState('');
+     const [formData, setFormData] = useState({userType: 'users', username: '', email: '', password: '', phone: ''});
+     const navigate = useNavigate();
+
+  useEffect(() => {
+     document.body.style.backgroundImage = "url('assets/login_background.jpeg')";
+     document.body.style.backgroundSize = "cover";
+     document.body.style.backgroundRepeat = "no-repeat";
+     document.body.style.backgroundPosition = "center";
+     return () => {
+       document.body.style.backgroundImage = "";
+       document.body.style.backgroundSize = "";
+       document.body.style.backgroundRepeat = "";
+       document.body.style.backgroundPosition = "";
+     };
+   }, []);
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/initial`, { method: 'POST' })
@@ -86,10 +105,64 @@ const LoginRegister = () => {
     } setIsLoggingIn(false);
   };  
 
+  const timerRef = useRef();
   useEffect(() => {
-    document.body.style.backgroundColor = "#D1F1CE";
-    return () => {document.body.style.backgroundColor = "";};
-  }, []);
+    if (isPhoneVerified === "Verifying" || isEmailVerified === "Verifying") {
+      setTimer(59);
+      timerRef.current = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+               clearInterval(timerRef.current); 
+               if (setIsPhoneVerified === "Verifying") setIsPhoneVerified("No"); 
+               if (setIsEmailVerified === "Verifying") setIsEmailVerified("No"); 
+               localStorage.removeItem("tempOTP");
+               return 0;}
+          return prev - 1;
+        });}, 1000);}
+    return () => clearInterval(timerRef.current);
+  }, [isPhoneVerified, isEmailVerified]);
+
+  const HandlePhoneVerify = async (e) => {
+     try {
+       setIsPhoneVerified("Verifying");
+       setTimer(59);
+       const res = await axios.post(`${BASE_URL}/api/send-sms-otp`, {
+         country_code: '+91',
+         phone: formData.phone
+       });
+       localStorage.setItem("tempOTP", res.data.otp);
+       console.log("OTP Sent....");
+     } catch (err) {
+       console.error("OTP sending failed:", err);
+       setIsPhoneVerified("No");
+     }
+   };
+   const HandleEmailVerify = async (e) => {
+     try {
+       setIsEmailVerified("Verifying");
+       setTimer(59);
+       const res = await axios.post(`${BASE_URL}/api/send-email-otp`, {
+         email: formData.email
+       });
+       localStorage.setItem("tempOTP", res.data.otp);
+       console.log("OTP Sent...");
+     } catch (err) {
+       console.error("OTP sending failed:", err);
+       setIsEmailVerified("No");
+     }
+   };
+   
+  const handleOtpSubmit = (type) => {
+    if (OTP === localStorage.getItem("tempOTP")) {
+      if (type) setIsPhoneVerified("Yes");
+      else setIsEmailVerified("Yes")
+      setOTP("");
+      localStorage.removeItem("tempOTP");
+    } else {
+      alert("Incorrect OTP");
+      setOTP("");
+    }
+  };
   
   return (
     <div className={`container ${isActive ? 'active' : ''}`}>
@@ -121,32 +194,47 @@ const LoginRegister = () => {
             <input type="text" placeholder="Username" name="username" value={formData.username} onChange={handleChange} required />
             <i className='bx bxs-user'></i>
           </div>
-          <div className="input-box">
-            <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} required />
-            <i className='bx bxs-envelope'></i>
-          </div>
+
+          {isEmailVerified === "No" && (<div className="input-box">
+            <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} required /><button type="button" className="btn" disabled={!formData.email.includes('@') || isPhoneVerified === "Verfiying"} onClick={HandleEmailVerify}>Verify</button><i className='bx bxs-envelope'></i>
+          </div>)}{isEmailVerified  === 'Verifying' && (<div className="input-box">
+            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>0:{timer}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(false)}>Submit</button>
+          </div>)}{isEmailVerified === "Yes" && (<div className="input-box">
+            <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} disabled={true} required /><button type="button" className="btn">Verified</button><i className='bx bxs-envelope'></i>
+          </div>)}
+
+          {isPhoneVerified === "No" && (<div className="input-box">
+            <span>+91</span><input type="tel" name="phone" placeholder="10 digit Phone-Number" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" required/><button type="button" className="btn" disabled={formData.phone.length !== 10 || isEmailVerified === "Verifying"} onClick={HandlePhoneVerify}>Verify</button><i className='bx bxs-phone'></i>
+          </div>)}{isPhoneVerified  === 'Verifying' && (<div className="input-box">
+            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>0:{timer}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(true)}>Submit</button>
+          </div>)}{isPhoneVerified === "Yes" && (<div className="input-box">
+            <span>+91</span><input type="tel" name="phone" placeholder="10 digit Phone-Number" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" disabled={true} required/><button type="button" className="btn">Verified</button><i className='bx bxs-phone'></i>
+          </div>)}
+
           <div className="input-box">
             <input type="password" placeholder="Password" name="password" value={formData.password} onChange={handleChange} required />
             <i className='bx bxs-lock-alt'></i>
           </div>
           <div className="input-box">
-            <input type="tel" name="phone" placeholder="10 digit Phone-Number" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" required/>
-            <i className='bx bxs-phone'></i>
+            <input type="password" placeholder="Confirm Password" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+            <i className='bx bxs-lock-alt'></i>
           </div>
-          <button type="submit" className="btn" disabled={isLoggingIn}>{isLoggingIn ? "Registering..." : "Register"}</button>
+          {confirmPassword.length > 0 && confirmPassword !== formData.password && (<p style={{ color: "red", fontSize: "12px", marginTop: "-0.5rem" }}>Passwords do not match</p>)}
+
+          <button type="submit" className="btn" disabled={isLoggingIn || isPhoneVerified !== "Yes" || isEmailVerified !== "Yes"}>{isLoggingIn ? "Registering..." : "Register"}</button>
         </form>
       </div>
 
       {/* Toggle */}
       <div className="toggle-box">
         <div className="toggle-panel toggle-left">
-          <div className = "logoInLogin">TRENDIFY</div>
+          <img className="logo" style={{height:"200px"}}src={'assets/Hunar_Bazaar.jpeg'} alt="App Logo"/>
           <h2>Hello, Welcome!</h2>
           <p>Don't have an account?</p>
           <button className="btn register-btn" onClick={handleRegisterClick}>Register</button>
         </div>
         <div className="toggle-panel toggle-right">
-          <div className = "logoInLogin">TRENDIFY</div>
+          <img className="logo" style={{height:"200px"}}src={'assets/Hunar_Bazaar.jpeg'} alt="App Logo"/>  
           <h2>Welcome Back!</h2>
           <p>Already have an account?</p>
           <button className="btn login-btn" onClick={handleLoginClick}>Login</button>

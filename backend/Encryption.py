@@ -7,7 +7,6 @@ if root_path not in sys.path:
 import subprocess
 import json, base64, qrcode
 from io import BytesIO
-from PIL import Image
 
 def encrypt_text(plaintext):
     exe_path = os.path.join(root_path, "dependencies", "AES_Implementation", "build", "encrypt")

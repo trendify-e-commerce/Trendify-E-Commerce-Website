@@ -1,7 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Lora:ital,wght@0,400;1,400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
 /*------------------------------------HEADER SECTION FORMATTING-----------------------------------*/
 .header {
-  background-color: #3cbf4e;
+  background: linear-gradient(to right, #3cbf4e, #2ecc71);
   padding: 0rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -17,20 +18,31 @@
   gap: 0.8rem;
 }
 
+.logo {
+  height: 60px;
+  padding: 0rem 0rem;
+  width: auto;
+  object-fit: contain;
+}
+
 .header h1 {
-  padding: 0.8rem 0rem;
-  margin: 0;
+  padding: 0rem 0rem;
   font-size: 1.6rem;
   font-weight: bold;
   color: black;
   font-family: 'Montserrat', sans-serif;
 }
 
-.logo {
-  height: 60px;
-  padding: 0rem 0rem;
-  width: auto;
-  object-fit: contain;
+.slogan {
+  font-size: 13px;
+  color: black;
+  font-family: 'Montserrat', 'Poppins', sans-serif;
+  font-weight: 300;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .user-info {
