@@ -45,7 +45,8 @@ def login():
     elif not check_password_hash(document.get("password"), password):
         return jsonify({"error": "Password is Incorrect"}), 401
     else:
-        if userType == "users": initializeAPI(username, document["user_id"], document["email"], userType)
+        if userType == "users" or userType == "sellers":
+            initializeAPI(username, document["user_id"], document["email"], userType)
         else:initializeAPI(username, document["agent_id"], document["email"], userType)
         return jsonify({"user_email": document["email"], "username": document["username"], "phone": document["phone"], "userType": userType}), 200
 
@@ -61,7 +62,7 @@ def register():
     if not username or not userType:
         return jsonify({'error': 'Missing required fields'}), 400
 
-    collection = db["users"]
+    collection = db[userType]
     if collection.find_one({"username": username}) is not None:
         return jsonify({"error": "User Already Present"}), 409
     else:

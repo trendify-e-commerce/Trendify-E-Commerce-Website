@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const LoginRegister = () => {
-     const [isActive, setIsActive] = useState('login');
+     const [isActive, setIsActive] = useState(false);
      const [isLoggingIn, setIsLoggingIn] = useState(false);
      const [OTP, setOTP] = useState("");
-     const [timer, setTimer] = useState(59);
+     const [timer, setTimer] = useState({minutes: 2, seconds: 59});
      const [isEmailVerified, setIsEmailVerified] = useState('No');
      const [isPhoneVerified, setIsPhoneVerified] = useState('No');
      const [confirmPassword, setConfirmPassword] = useState('');
@@ -108,24 +108,27 @@ const LoginRegister = () => {
   const timerRef = useRef();
   useEffect(() => {
     if (isPhoneVerified === "Verifying" || isEmailVerified === "Verifying") {
-      setTimer(59);
+      setTimer({ minutes: 2, seconds: 59 });
       timerRef.current = setInterval(() => {
         setTimer(prev => {
-          if (prev <= 1) {
-               clearInterval(timerRef.current); 
-               if (setIsPhoneVerified === "Verifying") setIsPhoneVerified("No"); 
-               if (setIsEmailVerified === "Verifying") setIsEmailVerified("No"); 
-               localStorage.removeItem("tempOTP");
-               return 0;}
-          return prev - 1;
-        });}, 1000);}
-    return () => clearInterval(timerRef.current);
-  }, [isPhoneVerified, isEmailVerified]);
+          const totalSeconds = prev.minutes * 60 + prev.seconds;
+          if (totalSeconds <= 1) {
+            clearInterval(timerRef.current);
+            if (isPhoneVerified === "Verifying") setIsPhoneVerified("No");
+            if (isEmailVerified === "Verifying") setIsEmailVerified("No");
+            localStorage.removeItem("tempOTP");
+            return { minutes: 0, seconds: 0 };
+          }const nextTotalSeconds = totalSeconds - 1;
+          return {
+            minutes: Math.floor(nextTotalSeconds / 60),
+            seconds: nextTotalSeconds % 60,
+          };});}, 1000);}return () => clearInterval(timerRef.current);
+  }, [isPhoneVerified, isEmailVerified]);  
 
   const HandlePhoneVerify = async (e) => {
      try {
        setIsPhoneVerified("Verifying");
-       setTimer(59);
+       setTimer({miniutes: 2, seconds: 59});
        const res = await axios.post(`${BASE_URL}/api/send-sms-otp`, {
          country_code: '+91',
          phone: formData.phone
@@ -140,7 +143,7 @@ const LoginRegister = () => {
    const HandleEmailVerify = async (e) => {
      try {
        setIsEmailVerified("Verifying");
-       setTimer(59);
+       setTimer({miniutes: 2, seconds: 59});
        const res = await axios.post(`${BASE_URL}/api/send-email-otp`, {
          email: formData.email
        });
@@ -180,8 +183,9 @@ const LoginRegister = () => {
           <button type="submit" className="btn" disabled={isLoggingIn}>{isLoggingIn ? "Logging In..." : "LogIn"}</button>
           <div className="role-toggle">
             <div className={`toggle-option ${formData.userType === 'users' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'users' })}>User</div>
-            <div className={`toggle-option ${formData.userType === 'agent' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'agents' })}>Agent</div>
-            <div className={`slider ${formData.userType === 'agents' ? 'right' : 'left'}`}></div>
+            <div className={`toggle-option ${formData.userType === 'sellers' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'sellers' })}>Seller</div>
+            <div className={`toggle-option ${formData.userType === 'agents' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'agents' })}>Agent</div>
+            <div className={`slider ${formData.userType === 'agents'? 'right': formData.userType === 'users'? 'left': 'middle'} loginS`}></div>
           </div>
         </form>
       </div>
@@ -196,9 +200,9 @@ const LoginRegister = () => {
           </div>
 
           {isEmailVerified === "No" && (<div className="input-box">
-            <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} required /><button type="button" className="btn" disabled={!formData.email.includes('@') || isPhoneVerified === "Verfiying"} onClick={HandleEmailVerify}>Verify</button><i className='bx bxs-envelope'></i>
+            <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} required /><button type="button" className="btn" disabled={!formData.email.includes('@') || isPhoneVerified === "Verifying"} onClick={HandleEmailVerify}>Verify</button><i className='bx bxs-envelope'></i>
           </div>)}{isEmailVerified  === 'Verifying' && (<div className="input-box">
-            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>0:{timer}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(false)}>Submit</button>
+            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>{timer.minutes}:{timer.seconds}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(false)}>Submit</button>
           </div>)}{isEmailVerified === "Yes" && (<div className="input-box">
             <input type="text" placeholder="Email"  name="email" value={formData.email} onChange={handleChange} disabled={true} required /><button type="button" className="btn">Verified</button><i className='bx bxs-envelope'></i>
           </div>)}
@@ -206,7 +210,7 @@ const LoginRegister = () => {
           {isPhoneVerified === "No" && (<div className="input-box">
             <span>+91</span><input type="tel" name="phone" placeholder="10 digit Phone-Number" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" required/><button type="button" className="btn" disabled={formData.phone.length !== 10 || isEmailVerified === "Verifying"} onClick={HandlePhoneVerify}>Verify</button><i className='bx bxs-phone'></i>
           </div>)}{isPhoneVerified  === 'Verifying' && (<div className="input-box">
-            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>0:{timer}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(true)}>Submit</button>
+            <input type="text" name="otp" placeholder="OTP" value={OTP} onChange={(e) => setOTP(e.target.value)} pattern="[0-9]{6}" required/><span>{timer.minutes}:{timer.seconds}</span><button type="button" className="btn" disabled={OTP.length !== 6} onClick={() => handleOtpSubmit(true)}>Submit</button>
           </div>)}{isPhoneVerified === "Yes" && (<div className="input-box">
             <span>+91</span><input type="tel" name="phone" placeholder="10 digit Phone-Number" value={formData.phone} onChange={handleChange} pattern="[0-9]{10}" disabled={true} required/><button type="button" className="btn">Verified</button><i className='bx bxs-phone'></i>
           </div>)}
@@ -222,6 +226,11 @@ const LoginRegister = () => {
           {confirmPassword.length > 0 && confirmPassword !== formData.password && (<p style={{ color: "red", fontSize: "12px", marginTop: "-0.5rem" }}>Passwords do not match</p>)}
 
           <button type="submit" className="btn" disabled={isLoggingIn || isPhoneVerified !== "Yes" || isEmailVerified !== "Yes"}>{isLoggingIn ? "Registering..." : "Register"}</button>
+          <div className="role-toggle">
+            <div className={`toggle-option ${formData.userType === 'users' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'users' })}>User</div>
+            <div className={`toggle-option ${formData.userType === 'sellers' ? 'active' : ''}`} onClick={() => setFormData({ ...formData, userType: 'sellers' })}>Seller</div>
+            <div className={`slider ${formData.userType === 'sellers'? 'right': 'left'} registerS`}></div>
+          </div>
         </form>
       </div>
 
