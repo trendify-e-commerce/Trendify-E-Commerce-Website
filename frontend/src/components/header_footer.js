@@ -1,10 +1,11 @@
 import './CSS/Header_Footer.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TrendingUp, Package, Users, DollarSign } from 'lucide-react';
 import { FaHome, FaInfoCircle, FaBoxOpen, FaShoppingCart, FaClipboardList } from "react-icons/fa";
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const Header = () => {
+const Header = ( {a}) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Header = () => {
       });
       const result = await response.json();
       if (result.email) {
+        localStorage.removeItem("user_id");
         localStorage.removeItem("user_email");
         localStorage.removeItem("username");
         localStorage.removeItem("phone");
@@ -42,13 +44,13 @@ const Header = () => {
       )}
       <div className="header">
         <div className="left-section">
-          <img className="logo" src={'assets/Hunar_Bazaar.jpeg'} alt="App Logo"/>
+          <img className="logo" src={'/assets/Hunar_Bazaar.jpeg'} alt="App Logo"/>
           <h1 style={{ fontFamily: "'Eagle Lake', cursive" }}>हुनरBazaar</h1>
         </div>
         <small className="slogan">"Skill in every hand, Market at every doorstep"</small>
         <div className="user-info" onClick={() => setDropdownVisible(!dropdownVisible)}>
           <span>{localStorage.getItem("user_email")}</span>
-          <img src={'assets/User.jpg'} alt="User" className="user-avatar" />
+          <img src={'/assets/User.jpg'} alt="User" className="user-avatar" />
           {dropdownVisible && (
             <div className="dropdown-menu">
               <button >View Profile</button>
@@ -57,14 +59,28 @@ const Header = () => {
           )}
         </div>
       </div>
-      <nav className="navbar">
-        <a href="/Home"><FaHome /> Home</a>
-        <a href="/Home"><FaInfoCircle /> About</a>
-        <a href="/Products"><FaBoxOpen /> Products</a>
-        <a href="/Orders"><FaClipboardList /> Orders</a>
-        <a href="/CartCheckout"><FaShoppingCart /> Cart</a>
-      </nav>
+      {a ? <SellerNavbar /> : <Navbar />}
     </div>
+  );
+};
+
+const Navbar = () => {
+  return (<nav className="navbar">
+    <a href="/Home"><FaHome /> Home</a>
+    <a href="/Home"><FaInfoCircle /> About</a>
+    <a href="/Products"><FaBoxOpen /> Products</a>
+    <a href="/CartCheckout"><FaShoppingCart /> Cart</a>
+    <a href="/Orders"><FaClipboardList /> Orders</a>
+  </nav>)
+}
+const SellerNavbar = () => {
+  return (
+    <nav className="navbar">
+      <a href="/seller/Dashboard"><TrendingUp size={18} /> Dashboard</a>
+      <a href="/seller/Products"><Package size={18} /> Product</a>
+      <a href="/seller/Orders"><Users size={18} /> Orders</a>
+      <a href="/seller/Analytics"><DollarSign size={18} /> Analytics</a>
+    </nav>
   );
 };
 

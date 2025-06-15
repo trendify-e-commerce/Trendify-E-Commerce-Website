@@ -8,7 +8,7 @@ const ProductCards = ({ cart, editable = false, onQuantityChange }) => {
   if (cart.length === 0) return <p>Your cart is empty.</p>;
   return cart.map(({ product, quantity }) => (
     <div key={product.id} className="product-card">
-      <img src={product.image} alt={product.name} />
+      <img src={typeof product.image === 'string'? product.image: product.image instanceof File? URL.createObjectURL(product.image[0]): '/placeholder.jpg' } alt={product.name} style={{ objectFit: 'cover' }}/>
       <h3>{product.name}</h3>
       {editable ? (
         <><p>Price: ₹{product.price}</p>

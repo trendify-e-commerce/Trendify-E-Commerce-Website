@@ -2,33 +2,49 @@ import React, { useEffect, useState } from "react";
 import "./CSS/product.css";
 import "./CSS/slideshow.css";
 import { Header, Footer } from "./header_footer";
-import products from "./Product_List";
 import { useNavigate } from "react-router-dom";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Home = () => {
-  const [currentSlide, setCurrentSlide] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setInterval(() => {setCurrentSlide((prev) => (prev + 1) % 5);}, 5000);
-    return () => clearInterval(timer);
+    const fetchCategories = async () => {
+      setLoading(true);
+      try{
+        const response = await fetch(`${BASE_URL}/api/get_categories`);
+        const data = await response.json();
+        setCategories(data.categories);
+      }catch(error){
+        setError(error.message);
+      }finally{setLoading(false);}
+    }; fetchCategories();
   }, []);
 
   useEffect(() => {
-    const uniqueCategories = [...new Set(products.map((product) => product.category)),];
-    setCategories(uniqueCategories);
+    const timer = setInterval(() => {setCurrentSlide((prev) => (prev + 1) % 8);}, 5000);
+    return () => clearInterval(timer);
   }, []);
 
-  const handlePrev = () => {setCurrentSlide((prev) => (prev - 1 + 5) % 5);};
-  const handleNext = () => {setCurrentSlide((prev) => (prev + 1) % 5);};
+  const handlePrev = () => {setCurrentSlide((prev) => (prev - 1 + 8) % 8);};
+  const handleNext = () => {setCurrentSlide((prev) => (prev + 1) % 8);};
 
   return (
     <div>
+      {loading && (<>
+        <div className="toast-overlay" />
+        <div className="toast-message processing">Loading the Data...</div>
+      </>)}{error && (<>
+        <div className="toast-overlay" onClick={() => { setError(null); }} />
+        <div className="toast-message error" onClick={() => { setError(null); }}>{error}</div>
+      </>)}
       <Header />
-
       <div className="slideshow-container">
-        {[1, 2, 3, 4, 5].map((num, index) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((num, index) => (
           <div key={num} className="mySlides fade" style={{ display: currentSlide === index ? "block" : "none" }}> <img src={`/assets/Discounts/Discount${num}.jpeg`} alt={`Slide ${num}`} /> </div>
         ))}
         <button className="prev" onClick={handlePrev}> &#10094; </button>

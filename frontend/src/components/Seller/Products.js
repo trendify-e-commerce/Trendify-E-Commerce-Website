@@ -1,35 +1,41 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import ProductModal from './ProductModal';
 import axios from 'axios';
-import './CSS/product.css';
-import { Header, Footer } from "./header_footer";
+import './../CSS/product.css';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const ProductsPage = () => {
+const ProductsListed = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [newProduct, setNewProduct] = useState({ name: '', category: '', price: 0, description: '', variants: [ { size: 'S', options: {} }, { size: 'M', options: {} }, { size: 'L', options: {} }, { size: 'XL', options: {} } ], images: []
+  });
+  
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState('All Categories');
+  const [sellerCategories, setSellerCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerLoad = 60;
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCart(storedCart);
     const fetchProducts = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`${BASE_URL}/api/product_list`);
+        const user_id = localStorage.getItem("user_id");
+        let response = await axios.get(`${BASE_URL}/api/seller_products_list`, { params: { seller_id: user_id }});
         const fetchedProducts = response.data.products;
         setProducts(fetchedProducts);
         const uniqueCategories = [...new Set(fetchedProducts.map(p => p.category))];
-        setCategories(['All Categories', ...uniqueCategories]);
+        setSellerCategories(['All Categories', ...uniqueCategories]);
         const urlParams = new URLSearchParams(window.location.search);
         const categoryParam = urlParams.get('category');
         setSelectedCategory(categoryParam || 'All Categories');
+        response = await fetch(`${BASE_URL}/api/get_categories`);
+        const data = await response.json();
+        setCategories(data.categories);
         setLoading(false);
       } catch (error) {console.error("Error fetching products:", error);
         setError(error.message);
@@ -50,33 +56,15 @@ const ProductsPage = () => {
     setCurrentPage(1);
   }, [searchInput, selectedCategory, products]);
 
-  const handleAddToCart = (productId) => {
-    const product = products.find(p => p.id === Number(productId));
-    if (!product) return;
-    const existing = cart.find(item => item.product.id === productId);
-    let updatedCart;
-    if (existing) {
-      updatedCart = cart.map(item => item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item);
-    } else {updatedCart = [...cart, { product, quantity: 1 }];
-    }setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const handleUpdateQuantity = (productId, action) => {
-    let updatedCart = cart.map(item => {
-      if (item.product.id === productId) {
-        const newQuantity = action === 'increase' ? item.quantity + 1 : item.quantity - 1;
-        return { ...item, quantity: newQuantity };
-      }return item;
-    }).filter(item => item.quantity > 0);
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
   const paginatedProducts = useMemo(() =>
     filteredProducts.slice((currentPage - 1) * productsPerLoad, currentPage * productsPerLoad),
     [filteredProducts, currentPage]
   );  
+
+  const handleSaveProduct = () => {
+    console.log('Saving Product:', newProduct);
+    setShowModal(false);
+  };
 
   return (
     <div>
@@ -87,35 +75,38 @@ const ProductsPage = () => {
       <div className="toast-overlay" onClick={() => { setError(null); }} />
       <div className="toast-message error" onClick={() => { setError(null); }}>{error}</div>
     </>)}
-     <Header />
      <div className="search-bar">
         <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search products..." />
         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-          {categories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
+          {sellerCategories.map((cat, idx) => <option key={idx} value={cat}>{cat}</option>)}
         </select>
-        <a className="anchor" href="/CartCheckout">View Cart</a>
-        <a className={`anchor ${cart.length === 0 ? "disabled" : ""}`} href={cart.length === 0 ? "#" : `/CartCheckout?step=${encodeURIComponent("checkout")}`} onClick={(e) => { if (cart.length === 0) e.preventDefault();}}> Checkout </a>
-     </div>
-
-     <div id="products" className="section">
-        <h1>Our Products</h1>
+        <button className="anchor" onClick={() => setShowModal(true)}>Add Product</button>{showModal && <ProductModal onClose={() => setShowModal(false)} />}
+        {showModal && (<ProductModal
+          show={true}
+          onClose={() => setShowModal(false)}
+          newProduct={newProduct}
+          setNewProduct={setNewProduct}
+          onSave={handleSaveProduct}
+          categories={categories}
+          sizes={['S', 'M', 'L', 'XL']}
+          handleSizeToggle={(size) => {
+            const updatedSizes = newProduct.size.includes(size)
+              ? newProduct.size.filter(s => s !== size)
+              : [...newProduct.size, size];
+            setNewProduct({ ...newProduct, size: updatedSizes });
+          }}
+        />
+      )}
+     </div> <div id="products" className="section">
+        <h1>Your Products</h1>
         <div className="product-container">
           {paginatedProducts.map(product => {
-            const existingProduct = cart.find(item => item.product.id === product.id);
             return (
               <div className="product-card" key={product.id}>
                 <img src={typeof product.image === 'string'? product.image: product.image instanceof File? URL.createObjectURL(product.image[0]): '/placeholder.jpg' } alt={product.name} style={{ objectFit: 'cover' }}/>
                 <h3>{product.name}</h3>
                 <p>Price: ₹{product.price}</p>
-                {existingProduct ? (
-                  <div className="quantity-container">
-                    <button className="quantity-button" onClick={() => handleUpdateQuantity(product.id, 'decrease')}>-</button>
-                    <span className="quantity-display">{existingProduct.quantity}</span>
-                    <button className="quantity-button" onClick={() => handleUpdateQuantity(product.id, 'increase')}>+</button>
-                  </div>
-                ) : (
-                  <button onClick={() => handleAddToCart(product.id)}>Add to Cart</button>
-                )}
+                <button>See Details</button>
               </div>
             );
           })}
@@ -131,9 +122,8 @@ const ProductsPage = () => {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
 
-export default ProductsPage;
+export default ProductsListed;

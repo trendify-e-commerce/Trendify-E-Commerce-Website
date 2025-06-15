@@ -48,7 +48,7 @@ def login():
         if userType == "users" or userType == "sellers":
             initializeAPI(username, document["user_id"], document["email"], userType)
         else:initializeAPI(username, document["agent_id"], document["email"], userType)
-        return jsonify({"user_email": document["email"], "username": document["username"], "phone": document["phone"], "userType": userType}), 200
+        return jsonify({"user_id": document["user_id"],"user_email": document["email"], "username": document["username"], "phone": document["phone"], "userType": userType}), 200
 
 @register_bp.route('/register', methods=['POST'])
 def register():
@@ -59,12 +59,14 @@ def register():
         return jsonify({'error': 'Registration failed or cancelled.'}), 401
     username = data["username"]
     userType = data["userType"]
+    email = data["email"]
+    phone = data["phone"]
     if not username or not userType:
         return jsonify({'error': 'Missing required fields'}), 400
 
     collection = db[userType]
-    if collection.find_one({"username": username}) is not None:
-        return jsonify({"error": "User Already Present"}), 409
+    if collection.find_one({"$or": [{"username": username},{"email": email},{"phone": phone}] }) is not None:
+        return jsonify({"error": "User already exists with the same username, email, or phone"}), 409
     else:
         import uuid
         data["user_id"] = str(uuid.uuid4())

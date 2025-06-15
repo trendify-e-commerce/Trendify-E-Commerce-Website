@@ -31,26 +31,13 @@ const LoginRegister = () => {
   useEffect(() => {
     fetch(`${BASE_URL}/api/initial`, { method: 'POST' })
       .then(res => res.json())
-      .then(data => {
-        console.log('Login auto-triggered:', data);
-      })
+      .then(data => {console.log('Login auto-triggered:', data);})
       .catch(err => console.error(err));
   }, []);
 
-  const handleRegisterClick = () => {
-    setIsActive(true);
-  };
-
-  const handleLoginClick = () => {
-    setIsActive(false);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
-    });
-  };
+  const handleRegisterClick = () => {setIsActive(true);};
+  const handleLoginClick = () => {setIsActive(false);};
+  const handleChange = (e) => {setFormData({ ...formData, [e.target.name]: e.target.value });};
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -65,11 +52,13 @@ const LoginRegister = () => {
   
       if (response.ok) {
         console.log('Login successful:', data);
+        localStorage.setItem("user_id", data.user_id);
         localStorage.setItem("user_email", data.user_email);
         localStorage.setItem("username", data.username);
         localStorage.setItem("phone", data.phone);
         localStorage.setItem("userType", data.userType);
-        navigate('/Home');
+        if (formData.userType !== "sellers") navigate('/Home');
+        else navigate('/seller/');
       } else {
         alert(`Login failed: ${data.error || 'Unknown error'}`);
       }
@@ -248,7 +237,7 @@ const LoginRegister = () => {
           <p>Already have an account?</p>
           <button className="btn login-btn" onClick={handleLoginClick}>Login</button>
         </div>
-      </div>
+      </div> 
     </div>
   );
 };
